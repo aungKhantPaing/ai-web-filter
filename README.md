@@ -1,3 +1,9 @@
+# TODO:
+- [ ] Improve DOM scraping
+- [ ] Add UI for filtering options
+- [ ] Refactor transformer pipeline class in background.js
+
+
 # Transformers.js - Sample browser extension
 
 An example project to show how to run 🤗 Transformers in a browser extension. Although we only provide instructions for running in Chrome, it should be similar for other browsers.

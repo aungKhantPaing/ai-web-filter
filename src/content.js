@@ -3,7 +3,7 @@
 //
 // Example usage:
 //
-import { ACTION_CLASSIFY_TEXT } from "./constants.js";
+import { ACTION_CLASSIFY_TEXT, ACTION_UPDATE_BADGE } from "./constants.js";
 const message = {
   action: ACTION_CLASSIFY_TEXT,
   text: "Hello, how are you?",
@@ -145,6 +145,18 @@ async function extractAndLogSentences(node = document.body) {
   });
   console.log(`Total sentences replaced: ${sentencesToReplace.length}`);
   console.log("=== END REPLACEMENT ===");
+
+  // Update badge with replacement count
+  if (sentencesToReplace.length > 0) {
+    try {
+      await chrome.runtime.sendMessage({
+        action: ACTION_UPDATE_BADGE,
+        count: sentencesToReplace.length,
+      });
+    } catch (error) {
+      console.error("Failed to update badge:", error);
+    }
+  }
 
   return sentences;
 }

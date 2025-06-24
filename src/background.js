@@ -2,7 +2,7 @@
 
 import { env, pipeline } from "@huggingface/transformers";
 
-import { ACTION_CLASSIFY_TEXT } from "./constants.js";
+import { ACTION_CLASSIFY_TEXT, ACTION_UPDATE_BADGE } from "./constants.js";
 
 // If you'd like to use a local model instead of loading the model
 // from the Hugging Face Hub, you can remove this line.
@@ -280,6 +280,24 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // see https://stackoverflow.com/a/46628145 for more information
     return true;
   }
+
+  if (message.action === ACTION_UPDATE_BADGE) {
+    addReplacements(message.count);
+    sendResponse({ success: true });
+    return true;
+  }
+
+  if (message.action === "get-replacement-count") {
+    sendResponse({ count: totalReplacements });
+    return true;
+  }
+
+  if (message.action === "reset-replacements") {
+    resetReplacements();
+    sendResponse({ success: true });
+    return true;
+  }
+
   return;
 });
 //////////////////////////////////////////////////////////////
@@ -288,4 +306,50 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 chrome.runtime.onSuspend.addListener(async () => {
   console.log("Extension is being unloaded, cleaning up...");
   await PipelineManager.cleanup();
+});
+
+// Badge management
+let totalReplacements = 0;
+
+/**
+ * Update the extension badge with the current replacement count
+ */
+function updateBadge() {
+  if (totalReplacements > 0) {
+    chrome.action.setBadgeText({ text: totalReplacements.toString() });
+    chrome.action.setBadgeBackgroundColor({ color: "#ff4444" });
+  } else {
+    chrome.action.setBadgeText({ text: "" });
+  }
+}
+
+/**
+ * Add to the replacement count and update badge
+ */
+function addReplacements(count) {
+  totalReplacements += count;
+  updateBadge();
+}
+
+/**
+ * Reset the replacement count and clear badge
+ */
+function resetReplacements() {
+  totalReplacements = 0;
+  updateBadge();
+}
+
+// Initialize badge on extension load
+chrome.runtime.onStartup.addListener(() => {
+  resetReplacements();
+});
+
+chrome.runtime.onInstalled.addListener(() => {
+  resetReplacements();
+});
+
+// Handle extension icon clicks
+chrome.action.onClicked.addListener((tab) => {
+  // Reset the replacement count when the extension icon is clicked
+  resetReplacements();
 });
