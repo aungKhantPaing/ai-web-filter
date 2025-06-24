@@ -1,7 +1,7 @@
 // popup.js - handles interaction with the extension's popup, sends requests to the
 // service worker (background.js), and updates the popup's UI (popup.html) on completion.
 
-import { ACTION_NAME } from "./constants.js";
+import { ACTION_CLASSIFY_TEXT } from "./constants.js";
 
 const inputElement = document.getElementById("text");
 const outputElement = document.getElementById("output");
@@ -10,7 +10,7 @@ const outputElement = document.getElementById("output");
 inputElement.addEventListener("input", async (event) => {
   // Bundle the input data into a message.
   const message = {
-    action: ACTION_NAME,
+    action: ACTION_CLASSIFY_TEXT,
     text: event.target.value,
   };
 

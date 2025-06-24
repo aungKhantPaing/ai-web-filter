@@ -3,146 +3,121 @@
 //
 // Example usage:
 //
-import { ACTION_NAME } from "./constants.js";
+import { ACTION_CLASSIFY_TEXT } from "./constants.js";
 const message = {
-    action: ACTION_NAME,
-    text: 'Hello, how are you?',
-}
+  action: ACTION_CLASSIFY_TEXT,
+  text: "Hello, how are you?",
+};
 const response = await chrome.runtime.sendMessage(message);
-console.log('received user data', response)
+console.log("received user data", response);
 
 const classifyText = async (text) => {
   const message = {
-    action: ACTION_NAME,
+    action: ACTION_CLASSIFY_TEXT,
     text: text,
-  }
+  };
   const response = await chrome.runtime.sendMessage(message);
   return response;
-}
-
-// Function to check if an element is visible to the user
-function isElementVisible(element) {
-  if (!element || element.nodeType !== Node.ELEMENT_NODE) {
-    return false;
-  }
-
-  const style = window.getComputedStyle(element);
-  
-  // Check if element is hidden by CSS
-  if (style.display === 'none' || 
-      style.visibility === 'hidden' || 
-      style.opacity === '0' ||
-      style.position === 'absolute' && (style.left === '-9999px' || style.top === '-9999px')) {
-    return false;
-  }
-
-  // Check if element has zero dimensions
-  const rect = element.getBoundingClientRect();
-  if (rect.width === 0 || rect.height === 0) {
-    return false;
-  }
-
-  // Check if element is outside the viewport
-  if (rect.bottom < 0 || rect.top > window.innerHeight || 
-      rect.right < 0 || rect.left > window.innerWidth) {
-    return false;
-  }
-
-  return true;
-}
+};
 
 // Function to get visible text content from a node
+/**
+ * @param {Node} node
+ * @returns {string}
+ */
 function getVisibleTextContent(node) {
-  if (node.nodeType === Node.TEXT_NODE) {
-    return node.textContent.trim();
-  }
-  
-  if (node.nodeType === Node.ELEMENT_NODE) {
-    // Skip hidden elements
-    if (!isElementVisible(node)) {
-      return '';
-    }
-    
-    // Skip script, style, and other non-content elements
-    if (['SCRIPT', 'STYLE', 'NOSCRIPT', 'META', 'LINK',].includes(node.tagName)) {
-      return '';
-    }
-    
-    // For elements with visible text, collect text from all child nodes
-    let text = '';
-    for (const child of node.childNodes) {
-      text += getVisibleTextContent(child) + ' ';
-    }
-    return text.trim();
-  }
-  
-  return '';
+  const textContent = node.innerText?.trim() || "";
+  const sentences = textContent
+    .split(/[.!?]+\n*|\n+/)
+    .map((sentence) => sentence.trim())
+    .filter((sentence) => sentence.length > 0 && sentence.length > 10);
+
+  console.log("sentences", sentences);
+
+  return sentences;
 }
 
 // Function to replace text in DOM nodes
-function replaceTextInNode(node, originalText, replacementText) {
-  if (node.nodeType === Node.TEXT_NODE) {
-    if (node.textContent.includes(originalText)) {
-      node.textContent = node.textContent.replace(originalText, replacementText);
-    }
-  } else if (node.nodeType === Node.ELEMENT_NODE) {
-    // Skip script and style tags
-    if (node.tagName === 'SCRIPT' || node.tagName === 'STYLE') {
-      return;
-    }
-    
-    // Recursively process child nodes
-    for (let child of node.childNodes) {
-      replaceTextInNode(child, originalText, replacementText);
+function replaceTextInNode(n, searchText, replacementText) {
+  const walker = document.createTreeWalker(
+    n,
+    NodeFilter.SHOW_TEXT,
+    null,
+    false
+  );
+
+  const textNodes = [];
+  let node;
+  while ((node = walker.nextNode())) {
+    if (node.nodeValue.includes(searchText)) {
+      textNodes.push(node);
     }
   }
+
+  // Replace text in each node
+  textNodes.forEach((textNode) => {
+    textNode.nodeValue = textNode.nodeValue.replace(
+      new RegExp(searchText, "g"),
+      replacementText
+    );
+  });
+  // if (node.nodeType === Node.TEXT_NODE) {
+  //   if (node.textContent.includes(originalText)) {
+  //     node.textContent = node.textContent.replace(
+  //       originalText,
+  //       replacementText
+  //     );
+  //   }
+  // } else if (node.nodeType === Node.ELEMENT_NODE) {
+  //   // Skip script and style tags
+  //   if (node.tagName === "SCRIPT" || node.tagName === "STYLE") {
+  //     return;
+  //   }
+
+  //   // Recursively process child nodes
+  //   for (let child of node.childNodes) {
+  //     replaceTextInNode(child, originalText, replacementText);
+  //   }
+  // }
 }
 
 // Function to extract and log all sentences from the page
 async function extractAndLogSentences(node = document.body) {
   // Get only visible text content
-  const textContent = getVisibleTextContent(node);
-  
-  if (!textContent) {
+  const sentences = getVisibleTextContent(node);
+
+  if (!sentences) {
     console.log("No visible text content found in the specified node");
     return [];
   }
-  
-  const sentences = textContent
-    .split(/[.!?]+\n*|\n+/)
-    .map((sentence) => sentence.trim())
-    .filter((sentence) => sentence.length > 0 && sentence.length > 10); // Filter out very short fragments
-
-  console.log("=== ALL VISIBLE SENTENCES FROM CURRENT PAGE ===");
-  sentences.forEach((sentence, index) => {
-    console.log(`${index + 1}. ${sentence}`);
-  });
-  console.log(`Total visible sentences found: ${sentences.length}`);
-  console.log("=== END SENTENCES ===");
 
   // Classify each sentence and replace high-scoring ones
   console.log("=== CLASSIFICATION RESULTS ===");
   const sentencesToReplace = [];
-  
+
   for (let i = 0; i < sentences.length; i++) {
     const sentence = sentences[i];
-    console.log(
-      `\nClassifying sentence ${i + 1}: "${sentence.substring(0, 100)}${
-        sentence.length > 100 ? "..." : ""
-      }"`
-    );
+    // console.log(
+    //   `\nClassifying sentence ${i + 1}: "${sentence.substring(0, 100)}${
+    //     sentence.length > 100 ? "..." : ""
+    //   }"`
+    // );
 
     const classification = await classifyText(sentence);
-    console.log(`Classification result:`, classification);
-    
+    // console.log(`Classification result:`, classification);
+
     // Check if any classification score is above 0.8
     if (classification && Array.isArray(classification)) {
-      const hasHighScore = classification.some(result => 
-        result.score && result.score > 0.8
+      const hasHighScore = classification.some(
+        (result) => result.score && result.score > 0.8
       );
-      
+
       if (hasHighScore) {
-        console.log(`⚠️  High score detected for sentence ${i + 1}, will be replaced with "***"`);
+        console.log(
+          `⚠️  High score detected for sentence ${
+            i + 1
+          }, will be replaced with "***"`
+        );
         sentencesToReplace.push(sentence);
       }
     }
@@ -152,7 +127,9 @@ async function extractAndLogSentences(node = document.body) {
   // Replace high-scoring sentences in the DOM
   console.log("=== REPLACING HIGH-SCORING SENTENCES ===");
   sentencesToReplace.forEach((sentence, index) => {
-    console.log(`Replacing sentence ${index + 1}: "${sentence.substring(0, 50)}..."`);
+    console.log(
+      `Replacing sentence ${index + 1}: "${sentence.substring(0, 50)}..."`
+    );
     replaceTextInNode(document.body, sentence, "*".repeat(sentence.length));
   });
   console.log(`Total sentences replaced: ${sentencesToReplace.length}`);
@@ -173,4 +150,3 @@ const observer = new MutationObserver((mutations) => {
   }
 });
 observer.observe(document.body, { childList: true, subtree: true });
-
