@@ -26,6 +26,14 @@ const classifyText = async (text) => {
  * @returns {string}
  */
 function getVisibleTextContent(node) {
+  // Skip nodes that already contain mark elements created by this extension
+  if (
+    node.querySelector &&
+    node.querySelector('mark[data-proso-marked="true"]')
+  ) {
+    return [];
+  }
+
   const textContent = node.innerText?.trim() || "";
   const sentences = textContent
     .split(/[.!?]+\n*|\n+/)
@@ -37,7 +45,7 @@ function getVisibleTextContent(node) {
   return sentences;
 }
 
-// Function to replace text in DOM nodes
+// Function to wrap text in mark elements in DOM nodes
 function replaceTextInNode(n, searchText, replacementText) {
   const walker = document.createTreeWalker(
     n,
@@ -54,31 +62,34 @@ function replaceTextInNode(n, searchText, replacementText) {
     }
   }
 
-  // Replace text in each node
+  // Replace text in each node by wrapping in mark elements
   textNodes.forEach((textNode) => {
-    textNode.nodeValue = textNode.nodeValue.replace(
-      new RegExp(searchText, "g"),
-      replacementText
-    );
-  });
-  // if (node.nodeType === Node.TEXT_NODE) {
-  //   if (node.textContent.includes(originalText)) {
-  //     node.textContent = node.textContent.replace(
-  //       originalText,
-  //       replacementText
-  //     );
-  //   }
-  // } else if (node.nodeType === Node.ELEMENT_NODE) {
-  //   // Skip script and style tags
-  //   if (node.tagName === "SCRIPT" || node.tagName === "STYLE") {
-  //     return;
-  //   }
+    const parent = textNode.parentNode;
+    const text = textNode.nodeValue;
+    const regex = new RegExp(searchText, "g");
 
-  //   // Recursively process child nodes
-  //   for (let child of node.childNodes) {
-  //     replaceTextInNode(child, originalText, replacementText);
-  //   }
-  // }
+    // Split the text by the search pattern
+    const parts = text.split(regex);
+    const matches = text.match(regex) || [];
+
+    // Clear the text node
+    textNode.nodeValue = parts[0];
+
+    // Insert mark elements for each match
+    for (let i = 0; i < matches.length; i++) {
+      const markElement = document.createElement("mark");
+      markElement.textContent = matches[i];
+      markElement.setAttribute("data-proso-marked", "true");
+      parent.insertBefore(markElement, textNode.nextSibling);
+
+      // Insert the next text part
+      if (parts[i + 1]) {
+        const nextTextNode = document.createTextNode(parts[i + 1]);
+        parent.insertBefore(nextTextNode, markElement.nextSibling);
+        textNode = nextTextNode;
+      }
+    }
+  });
 }
 
 // Function to extract and log all sentences from the page
@@ -109,7 +120,7 @@ async function extractAndLogSentences(node = document.body) {
     // Check if any classification score is above 0.8
     if (classification && Array.isArray(classification)) {
       const hasHighScore = classification.some(
-        (result) => result.score && result.score > 0.8
+        (result) => result.score && result.score > 0.5
       );
 
       if (hasHighScore) {
@@ -130,7 +141,7 @@ async function extractAndLogSentences(node = document.body) {
     console.log(
       `Replacing sentence ${index + 1}: "${sentence.substring(0, 50)}..."`
     );
-    replaceTextInNode(document.body, sentence, "*".repeat(sentence.length));
+    replaceTextInNode(document.body, sentence, sentence);
   });
   console.log(`Total sentences replaced: ${sentencesToReplace.length}`);
   console.log("=== END REPLACEMENT ===");
@@ -143,7 +154,19 @@ extractAndLogSentences();
 // Observe DOM changes for dynamically added elements
 const observer = new MutationObserver((mutations) => {
   for (const mutation of mutations) {
+    console.log("Mutation detected", mutation);
+    console.log("Added nodes");
     for (const node of mutation.addedNodes) {
+      // Skip nodes that already contain mark elements created by this extension
+      if (
+        node.tagName === "MARK" &&
+        node.getAttribute("data-proso-marked") === "true"
+        // node.nodeType === Node.ELEMENT_NODE &&
+        // node.querySelector &&
+        // node.querySelector("mark")
+      ) {
+        continue;
+      }
       extractAndLogSentences(node);
       // blurImagesInNode(node);
     }
