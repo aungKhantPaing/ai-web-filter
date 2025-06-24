@@ -6,7 +6,10 @@ import { ACTION_CLASSIFY_TEXT, ACTION_UPDATE_BADGE } from "./constants.js";
 
 // If you'd like to use a local model instead of loading the model
 // from the Hugging Face Hub, you can remove this line.
-env.allowLocalModels = false;
+// env.allowLocalModels = false;
+
+// https://github.com/huggingface/transformers.js/issues/1248#issuecomment-2899528980
+env.backends.onnx.wasm.wasmPaths = "";
 
 /**
  * Enhanced Singleton class for managing the ML pipeline with:
