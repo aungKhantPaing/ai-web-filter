@@ -12,16 +12,26 @@
 
   <body>
     <div class="container">
-      <h1>Proso</h1>
-      <h2>Text Classification Extension</h2>
+      <h1>AI Web Filter</h1>
+      <h2>Text & Image Filter Extension</h2>
+      
+      <div class="filter-section">
+        <div class="filter-control">
+          <span class="filter-label">Toxic Text Filter:</span>
+          <button id="filter-toggle" class="toggle-button">
+            <span class="toggle-text">OFF</span>
+          </button>
+        </div>
+      </div>
       
       <div class="stats">
         <div class="stat-item">
-          <span class="stat-label">Replacements:</span>
-          <span id="replacement-count" class="stat-value">0</span>
+          <span class="stat-label">Number of Blocked Texts: </span>
         </div>
-        <button id="reset-btn" class="reset-button">Reset Count</button>
+        <span id="replacement-count" class="stat-value">0</span>
+        <!-- <button id="reset-btn" class="reset-button">Reset Count</button> -->
       </div>
+      
       
       <div class="divider"></div>
       

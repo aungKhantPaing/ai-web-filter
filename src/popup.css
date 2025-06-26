@@ -60,9 +60,9 @@ body {
 }
 
 .stat-label {
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #495057;
 }
 
 .stat-value {
@@ -104,4 +104,49 @@ body {
   font-size: 20px;
   font-family: "Roboto Mono", monospace;
   height: 100px;
+}
+
+.filter-section {
+  margin-bottom: 20px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.filter-control {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.filter-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #495057;
+}
+
+.toggle-button {
+  position: relative;
+  width: 60px;
+  height: 30px;
+  background-color: #6c757d;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-button.active {
+  background-color: #28a745;
+}
+
+.toggle-text {
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
 }
