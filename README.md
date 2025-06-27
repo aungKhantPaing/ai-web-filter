@@ -108,7 +108,20 @@ Failed classifications: 0
 
 ### Models Used
 - **Text Classification**: `Xenova/toxic-bert` - Specialized in detecting toxic content
+Model speed: 1,000 sentences per second
+Model accuracy:
+
+| Challenge | Current Model Score | Other Models Score |
+|-----------|-------------------|-------------------|
+| Toxic Comment Classification Challenge | 0.98856 | 0.98636 |
+| Jigsaw Unintended Bias in Toxicity Classification | 0.94734 | 0.93639 |
+| Jigsaw Multilingual Toxic Comment Classification | 0.9536 | 0.91655 |
+
 - **Image Classification**: `Xenova/clip-vit-base-patch32` - Zero-shot image classification
+Model accuracy: Loss: 0.016, Accuracy: 0.984
+- **NSFW Image Classification**: `AdamCodd/vit-base-nsfw-detector` - Image classification
+Model accuracy: Loss: 0.0937, Accuracy: 0.9654
+
 
 ### Performance Optimization
 - **WebGPU Backend**: Hardware acceleration for faster inference
