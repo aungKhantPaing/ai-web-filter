@@ -1,94 +1,79 @@
-# Transformers.js - Sample browser extension
+# AI Web Filter Browser Extension
 
-An example project to show how to run 🤗 Transformers in a browser extension. Although we only provide instructions for running in Chrome, it should be similar for other browsers.
+A powerful browser extension that uses AI to automatically filter and classify web content for safety and appropriateness. Built with Transformers.js, AI Web Filter provides real-time text and image classification to help create a safer browsing experience.
 
 ## Features
 
 This extension provides two main functionalities:
 
-### 1. Text Classification
+### 1. Text Classification & Filtering
 - Automatically scans web pages for text content
-- Classifies sentences using a toxic content detection model
+- Classifies sentences using a toxic content detection model (Xenova/toxic-bert)
 - Replaces high-scoring sentences with "***" to mask potentially inappropriate content
+- Configurable strictness levels (0-100%)
 - Updates the extension badge with the count of replaced sentences
+- Context menu integration for manual text classification
 
-### 2. Image Classification
+### 2. Image Classification & Filtering
 - Automatically extracts all images from web pages
-- Classifies images using a zero-shot image classification model (CLIP)
+- Classifies images using a zero-shot image classification model (Xenova/clip-vit-base-patch32)
+- Configurable strictness levels for image filtering
 - Logs detailed classification results to the browser console
 - Supports dynamic content - new images added to the page are automatically classified
 - Uses candidate labels: "safe", "unsafe", "inappropriate", "adult content"
 
-### Backend and retry logic
-- **Primary**: WebGPU (hardware acceleration) for faster performance
-- **Retry Logic**: Up to 3 attempts per backend with exponential backoff
-
-#### Testing Backend Availability
-You can test which backends are available by running this in the browser console:
-```javascript
-// Test backend availability
-chrome.runtime.sendMessage({action: "check-backend-availability"})
-  .then(response => console.log(response));
-
-// Test image classification
-chrome.runtime.sendMessage({
-  action: "classify-image",
-  imageUrl: "https://example.com/image.jpg",
-  candidateLabels: ["safe", "unsafe"]
-}).then(response => console.log(response));
-```
-
-#### Manual Testing
-Use the provided test script (`test-backend.js`) to verify functionality:
-1. Open browser console on any page
-2. Copy and paste the contents of `test-backend.js`
-3. Run `runTests()` to test both backend availability and image classification
-
-### Performance Notes
-- **WebGPU**: Faster inference, requires compatible hardware/browser
-- **CPU**: Slower but more reliable, works on all devices
-- The extension automatically chooses the best available backend
+### Advanced Features
+- **WebGPU Acceleration**: Hardware-accelerated inference for faster performance
+- **Configurable Filters**: Toggle text and image filtering independently
+- **Strictness Controls**: Adjustable sensitivity levels for both text and image classification
+- **Real-time Statistics**: Track blocked content counts
+- **Context Menu Integration**: Right-click to classify selected text
+- **Memory Management**: Efficient pipeline management with singleton patterns
 
 ## Getting Started
 
-1. Clone the repo and enter the project directory:
+1. Clone the repository and enter the project directory:
    ```bash
-   git clone https://github.com/huggingface/transformers.js-examples.git
-   cd transformers.js-examples/browser-extension/
+   git clone https://github.com/aungKhantPaing/ai-web-filter.git
+   cd ai-web-filter
    ```
-1. Install the necessary dependencies:
 
+2. Install the necessary dependencies:
    ```bash
    npm install
    ```
 
-1. Build the project:
-
+3. Build the project:
    ```bash
    npm run build
    ```
 
-1. Add the extension to your browser. To do this, go to `chrome://extensions/`, enable developer mode (top right), and click "Load unpacked". Select the `build` directory from the dialog which appears and click "Select Folder".
+4. Add the extension to your browser:
+   - Go to `chrome://extensions/`
+   - Enable developer mode (top right)
+   - Click "Load unpacked"
+   - Select the `build` directory and click "Select Folder"
 
-1. That's it! You should now be able to open the extension's popup and use the model in your browser!
+5. The extension is now ready to use! Click the extension icon to access the control panel.
 
 ## Usage
 
-### Text Classification
-- The extension automatically runs on every page you visit
-- Open the browser console (F12) to see detailed logs of the classification process
-- The extension badge will show the number of sentences that were replaced
-- Click the extension icon to reset the replacement count
+### Extension Popup Interface
+- **Text Filter Toggle**: Enable/disable text content filtering
+- **Image Filter Toggle**: Enable/disable image content filtering
+- **Strictness Sliders**: Adjust sensitivity levels (0-100%) for both filters
+- **Statistics**: View the number of blocked content items
+- **Test Input**: Manually test text classification
 
-### Image Classification
-- Images are automatically extracted and classified when you visit a page
-- Open the browser console (F12) to see detailed classification results
-- Each image classification includes:
-  - Image source URL
-  - Dimensions
-  - Alt text and title
-  - Classification scores for each candidate label
-- New images added dynamically to the page are also automatically classified
+### Automatic Filtering
+- **Text Filtering**: Automatically runs on every page you visit
+- **Image Filtering**: Automatically classifies all images on web pages
+- **Dynamic Content**: New content added to pages is automatically processed
+- **Console Logging**: Detailed logs available in browser console (F12)
+
+### Manual Classification
+- **Context Menu**: Right-click selected text to classify it manually
+- **Test Interface**: Use the popup's text input to test classification
 
 ## Console Output
 
@@ -119,14 +104,59 @@ Failed classifications: 0
 === END IMAGE CLASSIFICATION ===
 ```
 
-## Editing the template
+## Technical Details
 
-We recommend running `npm run dev` while editing the template as it will rebuild the project when changes are made.
+### Models Used
+- **Text Classification**: `Xenova/toxic-bert` - Specialized in detecting toxic content
+- **Image Classification**: `Xenova/clip-vit-base-patch32` - Zero-shot image classification
 
-All source code can be found in the `./src/` directory:
+### Performance Optimization
+- **WebGPU Backend**: Hardware acceleration for faster inference
+- **Singleton Pipelines**: Efficient memory management
+- **Progress Tracking**: Real-time loading progress updates
+- **Error Handling**: Robust error recovery and user feedback
 
-- `background.js` ([service worker](https://developer.chrome.com/docs/extensions/mv3/service_workers/)) - handles all the requests from the UI, does processing in the background, then returns the result. You will need to reload the extension (by visiting `chrome://extensions/` and clicking the refresh button) after editing this file for changes to be visible in the extension.
+### Architecture
+- **Background Script**: Handles ML inference and message processing
+- **Content Script**: Injects into web pages for content extraction
+- **Popup Interface**: User controls and statistics display
+- **Context Menus**: Manual classification integration
 
-- `content.js` ([content script](https://developer.chrome.com/docs/extensions/mv3/content_scripts/)) - contains the code which is injected into every page the user visits. You can use the `sendMessage` api to make requests to the background script. Similarly, you will need to reload the extension after editing this file for changes to be visible in the extension.
+## Development
 
-- `popup.html`, `popup.css`, `popup.js` ([toolbar action](https://developer.chrome.com/docs/extensions/reference/action/)) - contains the code for the popup which is visible to the user when they click the extension's icon from the extensions bar. For development, we recommend opening the `popup.html` file in its own tab by visiting `chrome-extension://<ext_id>/popup.html` (remember to replace `<ext_id>` with the extension's ID). You will need to refresh the page while you develop to see the changes you make.
+### Running in Development Mode
+```bash
+npm run dev
+```
+This will watch for changes and rebuild automatically.
+
+### Project Structure
+```
+src/
+├── background.js      # Service worker - ML processing and message handling
+├── content.js         # Content script - page injection and content extraction
+├── popup.html         # Extension popup interface
+├── popup.css          # Popup styling
+├── popup.js           # Popup functionality
+└── constants.js       # Shared constants and configuration
+```
+
+### Key Files
+- `background.js` - Handles all ML inference, message processing, and context menu integration
+- `content.js` - Injected into web pages to extract and process content
+- `popup.html/js/css` - User interface for controlling the extension
+- `constants.js` - Shared constants and action definitions
+
+## Contributing
+
+This project is open source. Feel free to submit issues and pull requests to improve the extension.
+
+## License
+
+Apache-2.0 License
+
+## Links
+
+- [GitHub Repository](https://github.com/aungKhantPaing/ai-web-filter)
+- [Transformers.js Documentation](https://huggingface.co/docs/transformers.js)
+- [Chrome Extension Development Guide](https://developer.chrome.com/docs/extensions/)

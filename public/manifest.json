@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Proso",
+  "name": "AI Web Filter",
   "description": "Transformers.js | Sample browser extension",
   "version": "0.0.1",
   "permissions": [
