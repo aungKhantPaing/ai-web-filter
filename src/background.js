@@ -33,23 +33,27 @@ console.log("env", env);
 class TextClassificationPipeline {
   static task = "text-classification";
   static model = "Xenova/toxic-bert";
-  static instance = null;
 
   /**
    * Get the pipeline instance with progress tracking
    * @param {function} progress_callback - A function to call with progress updates
    * @returns {Promise<Pipeline>} The pipeline instance
    */
-  static async getInstance(progress_callback = null) {
+  static async getInstance(progress_callback) {
     // The ??= operator is the nullish coalescing assignment operator
     // It only assigns the right side if this.instance is null or undefined
     // This creates a singleton pattern - only create new instance if one doesn't exist
-    this.instance ??= pipeline(this.task, this.model, {
-      progress_callback,
-      device: "webgpu",
-    });
+    return (this.fn ??= async (...args) => {
+      this.instance ??= pipeline(this.task, this.model, {
+        progress_callback,
+        device: "webgpu",
+        dtype: "fp32",
+      });
 
-    return this.instance;
+      return (this.promise_chain = (
+        this.promise_chain ?? Promise.resolve()
+      ).then(async () => (await this.instance)(...args)));
+    });
   }
 
   static async cleanup() {
@@ -108,15 +112,18 @@ const classify = async (text, options = {}) => {
 class ImageClassificationPipeline {
   static task = "zero-shot-image-classification";
   static model = "Xenova/clip-vit-base-patch32";
-  static instance = null;
 
   static async getInstance(progress_callback = null) {
-    this.instance ??= pipeline(this.task, this.model, {
-      progress_callback,
-      device: "webgpu",
-    });
+    return (this.fn ??= async (...args) => {
+      this.instance ??= pipeline(this.task, this.model, {
+        progress_callback,
+        device: "webgpu",
+      });
 
-    return this.instance;
+      return (this.promise_chain = (
+        this.promise_chain ?? Promise.resolve()
+      ).then(async () => (await this.instance)(...args)));
+    });
   }
 
   static async cleanup() {
@@ -200,13 +207,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === ACTION_CLASSIFY_TEXT) {
     console.log("onMessage", message);
-    classify(message.text)
-      .then((result) => sendResponse(result))
-      .catch((error) => {
-        sendResponse({ success: false, error: error.message });
-      });
-    // return true to indicate we will send a response asynchronously
-    // see https://stackoverflow.com/a/46628145 for more information
+    classify(message.text).then((result) => sendResponse(result));
     return true;
   }
 
@@ -228,11 +229,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.action === ACTION_CLASSIFY_IMAGE) {
-    classifyImage(message.imageUrl, message.candidateLabels)
-      .then((result) => sendResponse(result))
-      .catch((error) => {
-        sendResponse({ success: false, error: error.message });
-      });
+    classifyImage(message.imageUrl, message.candidateLabels).then((result) =>
+      sendResponse(result)
+    );
+
     return true;
   }
 
