@@ -53,9 +53,17 @@ body {
   border-radius: 8px;
 }
 
+.filter-stats {
+  margin: 12px 0;
+  padding: 8px 12px;
+  background-color: #e8f5e8;
+  border-radius: 6px;
+  border-left: 3px solid #28a745;
+}
+
 .stat-item {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
 }
 
@@ -66,7 +74,7 @@ body {
 }
 
 .stat-value {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: bold;
   color: #ff4444;
 }
@@ -118,6 +126,11 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 12px;
+}
+
+.filter-control:last-child {
+  margin-bottom: 0;
 }
 
 .filter-label {
@@ -149,4 +162,102 @@ body {
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
+}
+
+.strictness-control {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 8px 0;
+}
+
+.strictness-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6c757d;
+  min-width: 70px;
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.strictness-slider {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: #e9ecef;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.strictness-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #007bff;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.strictness-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #007bff;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.strictness-slider:active::-webkit-slider-thumb {
+  background: #0056b3;
+  transform: scale(1.1);
+}
+
+.strictness-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: #007bff;
+  min-width: 35px;
+  text-align: right;
+}
+
+.footer {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.github-link {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.github-link:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+.version {
+  font-weight: 600;
+  color: #495057;
 }

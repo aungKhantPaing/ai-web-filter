@@ -14,6 +14,7 @@
     <div class="container">
       <h1>AI Web Filter</h1>
       <h2>Text & Image Filter Extension</h2>
+
       
       <div class="filter-section">
         <div class="filter-control">
@@ -22,22 +23,48 @@
             <span class="toggle-text">OFF</span>
           </button>
         </div>
-      </div>
-      
-      <div class="stats">
-        <div class="stat-item">
-          <span class="stat-label">Number of Blocked Texts: </span>
+        <div id="text-strictness-control" class="strictness-control" style="display: none;">
+          <span class="strictness-label">Strictness:</span>
+          <div class="slider-container">
+            <input type="range" id="text-strictness-slider" class="strictness-slider" min="0" max="100" />
+            <span id="text-strictness-value" class="strictness-value">50%</span>
+          </div>
         </div>
-        <span id="replacement-count" class="stat-value">0</span>
-        <!-- <button id="reset-btn" class="reset-button">Reset Count</button> -->
+        <div id="text-filter-stats" class="filter-stats" style="display: none;">
+          <div class="stat-item">
+            <span class="stat-label">Number of Blocked Texts: </span>
+            <span id="replacement-count" class="stat-value">0</span>
+          </div>
+        </div>
+        <div class="filter-control">
+          <span class="filter-label">Image Filter:</span>
+          <button id="image-filter-toggle" class="toggle-button">
+            <span class="toggle-text">OFF</span>
+          </button>
+        </div>
+        <div id="image-strictness-control" class="strictness-control" style="display: none;">
+          <span class="strictness-label">Strictness:</span>
+          <div class="slider-container">
+            <input type="range" id="image-strictness-slider" class="strictness-slider" min="0" max="100" />
+            <span id="image-strictness-value" class="strictness-value">50%</span>
+          </div>
+        </div>
       </div>
-      
       
       <div class="divider"></div>
       
-      <h3>Test Classification</h3>
-      <input id="text" placeholder="Enter text here" />
+      <input id="text" placeholder="Enter text to test" />
       <pre id="output"></pre>
+      
+      
+      <div class="footer">
+        <div class="footer-content">
+          <a href="https://github.com/aungKhantPaing/ai-web-filter" target="_blank" class="github-link">
+            GitHub
+          </a>
+          <span class="version">v0.0.1</span>
+        </div>
+      </div>
     </div>
   </body>
 </html>

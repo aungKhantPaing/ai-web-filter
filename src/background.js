@@ -228,11 +228,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.action === ACTION_CLASSIFY_IMAGE) {
-    classifyImage(message.imageUrl, message.candidateLabels).then(sendResponse);
-    // .catch((error) => {
-    //   console.error("Image classification failed:", message.imageUrl, error);
-    //   sendResponse({ success: false, error: error.message });
-    // });
+    classifyImage(message.imageUrl, message.candidateLabels)
+      .then((result) => sendResponse(result))
+      .catch((error) => {
+        sendResponse({ success: false, error: error.message });
+      });
     return true;
   }
 

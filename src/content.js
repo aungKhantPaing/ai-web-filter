@@ -3,10 +3,15 @@
 //
 // Example usage:
 //
-import { ACTION_CLASSIFY_TEXT, ACTION_UPDATE_BADGE } from "./constants.js";
+import {
+  ACTION_CLASSIFY_TEXT,
+  ACTION_UPDATE_BADGE,
+  ACTION_CLASSIFY_IMAGE,
+} from "./constants.js";
 
 // Cache for classified text to avoid re-classification
-const classificationCache = new Map();
+const textClassificationCache = new Map();
+const imageClassificationCache = new Map();
 const replacedSentences = new Set();
 // Remove the problematic chrome.tabs.query() call
 // Content scripts don't have access to chrome.tabs API
@@ -29,12 +34,12 @@ function updateBadge(value) {
 
 const classifyText = async (text) => {
   // Check if text is already classified
-  if (classificationCache.has(text)) {
+  if (textClassificationCache.has(text)) {
     console.log(
       "Using cached classification for:",
       text.substring(0, 50) + "..."
     );
-    return classificationCache.get(text);
+    return textClassificationCache.get(text);
   }
 
   const message = {
@@ -45,8 +50,30 @@ const classifyText = async (text) => {
 
   // Cache the result
   if (response && Array.isArray(response)) {
-    classificationCache.set(text, response);
+    textClassificationCache.set(text, response);
     console.log("Cached classification for:", text.substring(0, 50) + "...");
+  }
+
+  return response;
+};
+
+const classifyImage = async (
+  imageUrl,
+  candidateLabels = ["safe", "unsafe", "inappropriate", "adult content"]
+) => {
+  const message = {
+    action: ACTION_CLASSIFY_IMAGE,
+    imageUrl: imageUrl,
+    candidateLabels: candidateLabels,
+  };
+  const response = await chrome.runtime.sendMessage(message);
+
+  if (response && Array.isArray(response)) {
+    imageClassificationCache.set(imageUrl, response);
+    console.log(
+      "Cached classification for:",
+      imageUrl.substring(0, 50) + "..."
+    );
   }
 
   return response;
@@ -126,7 +153,7 @@ function replaceTextInNode(node, originalText, replacementText) {
 }
 
 // Function to extract and log all sentences from the page
-async function filterToxicText(node = document.body) {
+async function filterToxicText(node = document.body, threadshold = 0.8) {
   // Get only visible text content
   const sentences = getVisibleTextContent(node);
 
@@ -149,10 +176,9 @@ async function filterToxicText(node = document.body) {
     const classification = await classifyText(sentence);
     // console.log(`Classification result:`, classification);
 
-    // Check if any classification score is above 0.8
     if (classification && Array.isArray(classification)) {
       const hasHighScore = classification.some(
-        (result) => result.score && result.score > 0.8
+        (result) => result.score && result.score > threadshold
       );
 
       if (hasHighScore) {
@@ -185,39 +211,88 @@ async function filterToxicText(node = document.body) {
   return sentences;
 }
 
-// extractAndLogSentences();
+async function blurNSFWImages(node, threadshold = 0.8) {
+  const images = node.querySelectorAll("img");
+  for (const image of images) {
+    const src = image.src;
 
-// Observe DOM changes for dynamically added elements
-const observer = new MutationObserver((mutations) => {
-  for (const mutation of mutations) {
-    for (const node of mutation.addedNodes) {
-      filterToxicText(node);
-      // blurImagesInNode(node);
+    // Skip tiny images that are likely icons/decorative
+    if (image.width < 50 || image.height < 50) {
+      continue;
+    }
+
+    // Skip images without valid src
+    if (!src || src.includes("placeholder")) {
+      continue;
+    }
+
+    // Check cache first
+    let classification = null;
+    if (imageClassificationCache.has(src)) {
+      console.log(
+        "Using cached classification for:",
+        src.substring(0, 50) + "..."
+      );
+      classification = imageClassificationCache.get(src);
+    } else {
+      classification = await classifyImage(src);
+    }
+
+    if (classification && Array.isArray(classification)) {
+      imageClassificationCache.set(src, classification);
+      const hasHighScore = classification.find(
+        ({ label, score }) =>
+          (label === "adult content" ||
+            label === "inappropriate" ||
+            label === "unsafe") &&
+          score >= threadshold
+      );
+      if (hasHighScore) {
+        image.style.filter = "blur(10px)";
+      }
     }
   }
-});
+}
 
 async function init() {
   console.log("init");
-
-  // chrome.storage.local.set({
-  //   filterTotalReplacements: 0,
-  // });
 
   const storage = await chrome.storage.local.get([
     "filterConfig",
     "filterTotalReplacements",
   ]);
-
   console.log("storage", storage);
-  if (storage.filterConfig?.textFilter?.isEnabled) {
-    filterToxicText();
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      characterData: true,
-    });
+
+  const textFilterEnabled = storage.filterConfig?.textFilter?.isEnabled;
+  const imageFilterEnabled = storage.filterConfig?.imageFilter?.isEnabled;
+  const textFilterThreadshold =
+    storage.filterConfig?.textFilter?.strictness / 100 || 0.8;
+  const imageFilterThreadshold =
+    storage.filterConfig?.imageFilter?.strictness / 100 || 0.8;
+
+  if (textFilterEnabled) {
+    filterToxicText(document.body, textFilterThreadshold);
   }
+
+  const observer = new MutationObserver((mutations) => {
+    for (let i = 0; i < mutations.length; i++) {
+      const mutation = mutations[i];
+      for (const node of mutation.addedNodes) {
+        if (textFilterEnabled) {
+          filterToxicText(node, textFilterThreadshold);
+        }
+        if (imageFilterEnabled) {
+          blurNSFWImages(node, imageFilterThreadshold);
+        }
+        // blurImagesInNode(node);
+      }
+    }
+  });
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    characterData: true,
+  });
 }
 
 init();
