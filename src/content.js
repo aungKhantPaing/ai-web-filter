@@ -89,7 +89,7 @@ function getVisibleTextContent(node) {
   const sentences = textContent
     .split(/[.!?]+\n*|\n+/)
     .map((sentence) => sentence.trim())
-    .filter((sentence) => sentence.length > 0 && sentence.length > 10);
+    .filter((sentence) => sentence.length > 0 && sentence.length > 8);
 
   if (sentences.length > 0) {
     console.log("sentences", sentences);
