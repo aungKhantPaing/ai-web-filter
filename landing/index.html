@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Web Filter - Safe Browsing with AI-Powered Content Filtering</title>
+    <meta name="description" content="Transform your browsing experience with AI-powered content filtering. Automatically detect and filter inappropriate text and images in real-time using advanced machine learning.">
+    <link rel="icon" type="image/png" href="../public/icons/icon.ico">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="../public/icons/icon.png" alt="AI Web Filter Logo" style="height: 32px; width: 32px; margin-right: 0.5rem; vertical-align: middle;" />
+                <span>AI Web Filter</span>
+            </div>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How it Works</a>
+                <a href="#download">Download</a>
+                <a href="#github" class="github-link">
+                    <i class="fab fa-github"></i>
+                    GitHub
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1>Safe Browsing with <span class="gradient-text">AI-Powered</span> Content Filtering</h1>
+                <p class="hero-subtitle">
+                    Transform your browsing experience with real-time AI detection and filtering of inappropriate content. 
+                    Built with cutting-edge Transformers.js technology for lightning-fast performance.
+                </p>
+                <div class="hero-buttons">
+                    <a href="#download" class="btn btn-primary">
+                        <i class="fas fa-download"></i>
+                        Install Extension
+                    </a>
+                    <a href="#demo" class="btn btn-secondary">
+                        <i class="fas fa-play"></i>
+                        Watch Demo
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">1000+</span>
+                        <span class="stat-label">sentences/sec</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">98.4%</span>
+                        <span class="stat-label">accuracy</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">Real-time</span>
+                        <span class="stat-label">filtering</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="extension-preview">
+                    <div class="browser-mockup">
+                        <div class="browser-header">
+                            <div class="browser-dots">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                            <div class="browser-url">example.com</div>
+                        </div>
+                        <div class="browser-content">
+                            <div class="content-line safe">This is safe content that will be displayed normally.</div>
+                            <div class="content-line filtered">*** This inappropriate content has been filtered ***</div>
+                            <div class="content-line safe">More safe content continues here.</div>
+                            <div class="content-line filtered">*** Another filtered sentence ***</div>
+                        </div>
+                    </div>
+                    <div class="extension-badge">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>2 blocked</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Powerful AI Features</h2>
+                <p>Advanced machine learning models working together to keep your browsing safe</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-font"></i>
+                    </div>
+                    <h3>Text Classification</h3>
+                    <p>Automatically scans and classifies text content using the Xenova/toxic-bert model with 98.4% accuracy. Replaces inappropriate content with "***" in real-time.</p>
+                    <ul class="feature-list">
+                        <li>Real-time sentence analysis</li>
+                        <li>Configurable strictness levels</li>
+                        <li>Context menu integration</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <h3>Image Classification</h3>
+                    <p>Zero-shot image classification using CLIP technology. Automatically detects and filters inappropriate images with 96.5% accuracy.</p>
+                    <ul class="feature-list">
+                        <li>Dynamic content detection</li>
+                        <li>Multiple safety categories</li>
+                        <li>Automatic image extraction</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <h3>WebGPU Acceleration</h3>
+                    <p>Hardware-accelerated inference for lightning-fast performance. Process thousands of sentences per second with minimal resource usage.</p>
+                    <ul class="feature-list">
+                        <li>Hardware acceleration</li>
+                        <li>Efficient memory management</li>
+                        <li>Background processing</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-sliders-h"></i>
+                    </div>
+                    <h3>Smart Controls</h3>
+                    <p>Fine-tune your filtering experience with independent controls for text and image filtering, plus adjustable strictness levels.</p>
+                    <ul class="feature-list">
+                        <li>Independent filter toggles</li>
+                        <li>Adjustable sensitivity</li>
+                        <li>Real-time statistics</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2>How It Works</h2>
+                <p>Simple setup, powerful protection</p>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Install Extension</h3>
+                        <p>Download and install the AI Web Filter extension from the Chrome Web Store or load it manually in developer mode.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Configure Settings</h3>
+                        <p>Open the extension popup to adjust text and image filtering settings, and set your preferred strictness levels.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Browse Safely</h3>
+                        <p>Visit any website and watch as AI automatically filters inappropriate content in real-time. View statistics and manage blocked content.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" class="download">
+        <div class="container">
+            <div class="download-content">
+                <h2>Ready to Transform Your Browsing Experience?</h2>
+                <p>Join thousands of users who trust AI Web Filter for safe, intelligent content filtering.</p>
+                <div class="download-buttons">
+                    <a href="#" class="btn btn-primary btn-large">
+                        <i class="fab fa-chrome"></i>
+                        Install for Chrome
+                    </a>
+                    <a href="../public/build.zip" class="btn btn-secondary btn-large" download>
+                        <i class="fas fa-download"></i>
+                        Download Extension (.crx)
+                    </a>
+                    <a href="https://github.com/aungKhantPaing/ai-web-filter" class="btn btn-secondary btn-large">
+                        <i class="fab fa-github"></i>
+                        View on GitHub
+                    </a>
+                </div>
+                <div class="download-info">
+                    <div class="info-item">
+                        <i class="fas fa-check"></i>
+                        <span>Free and open source</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-check"></i>
+                        <span>Privacy-focused</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-check"></i>
+                        <span>No data collection</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Manual installation: Enable Developer Mode in Chrome Extensions</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="../public/icons/icon.png" alt="AI Web Filter Logo" style="height: 28px; width: 28px; margin-right: 0.5rem; vertical-align: middle;" />
+                        <span>AI Web Filter</span>
+                    </div>
+                    <p>Safe browsing powered by advanced AI technology.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Links</h4>
+                    <a href="#features">Features</a>
+                    <a href="#how-it-works">How it Works</a>
+                    <a href="https://github.com/aungKhantPaing/ai-web-filter">GitHub</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <a href="https://huggingface.co/docs/transformers.js">Transformers.js Docs</a>
+                    <a href="https://developer.chrome.com/docs/extensions/">Chrome Extensions</a>
+                </div>
+                <div class="footer-section">
+                    <h4>License</h4>
+                    <p>Apache-2.0 License</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 AI Web Filter. Built with ❤️ using Transformers.js.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html> 
