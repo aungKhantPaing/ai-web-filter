@@ -17,13 +17,13 @@ const replacedSentences = new Set();
 // Content scripts don't have access to chrome.tabs API
 
 console.log("Content script loaded");
-const message = {
-  action: ACTION_CLASSIFY_TEXT,
-  text: "Hello, how are you?",
-};
-const response = await chrome.runtime.sendMessage(message);
+// const message = {
+//   action: ACTION_CLASSIFY_TEXT,
+//   text: "Hello, how are you?",
+// };
+// const response = await chrome.runtime.sendMessage(message);
 
-console.log("received user data", response);
+// console.log("received user data", response);
 
 function updateBadge(value) {
   chrome.runtime.sendMessage({
@@ -182,6 +182,10 @@ async function filterToxicText(node = document.body, threadshold = 0.8) {
       );
 
       if (hasHighScore) {
+        console.log(
+          `Replacing sentence ${i + 1}: "${sentence.substring(0, 50)}..."`
+        );
+        replaceTextInNode(node, sentence, "*".repeat(sentence.length));
         sentencesToReplace.push(sentence);
         replacedSentences.add(sentence);
         // Store the total replacement count for this page
@@ -196,17 +200,17 @@ async function filterToxicText(node = document.body, threadshold = 0.8) {
   // console.log("=== END CLASSIFICATION RESULTS ===");
 
   // Replace high-scoring sentences in the DOM
-  if (sentencesToReplace.length > 0) {
-    console.log("=== REPLACING HIGH-SCORING SENTENCES ===");
-    sentencesToReplace.forEach((sentence, index) => {
-      console.log(
-        `Replacing sentence ${index + 1}: "${sentence.substring(0, 50)}..."`
-      );
-      replaceTextInNode(node, sentence, "*".repeat(sentence.length));
-    });
-    console.log(`Total sentences replaced: ${sentencesToReplace.length}`);
-    console.log("=== END REPLACEMENT ===");
-  }
+  // if (sentencesToReplace.length > 0) {
+  //   console.log("=== REPLACING HIGH-SCORING SENTENCES ===");
+  //   sentencesToReplace.forEach((sentence, index) => {
+  //     console.log(
+  //       `Replacing sentence ${index + 1}: "${sentence.substring(0, 50)}..."`
+  //     );
+  //     replaceTextInNode(node, sentence, "*".repeat(sentence.length));
+  //   });
+  //   console.log(`Total sentences replaced: ${sentencesToReplace.length}`);
+  //   console.log("=== END REPLACEMENT ===");
+  // }
 
   return sentences;
 }
