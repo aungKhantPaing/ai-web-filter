@@ -87,7 +87,7 @@ const classifyImage = async (
 function getVisibleTextContent(node) {
   const textContent = node.innerText?.trim() || "";
   const sentences = textContent
-    .split(/[.!?]+\n*|\n+/)
+    .split(/[.!?;:]+\n*|\n+/)
     .map((sentence) => sentence.trim())
     .filter((sentence) => sentence.length > 0 && sentence.length > 8);
 
@@ -288,6 +288,7 @@ async function init() {
       }
     }
   });
+
   observer.observe(document.body, {
     childList: true,
     subtree: true,
