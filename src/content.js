@@ -63,7 +63,7 @@ const classifyImage = async (
 ) => {
   const message = {
     action: ACTION_CLASSIFY_IMAGE,
-    imageUrl: imageUrl,
+    imageUrls: [imageUrl],
     candidateLabels: candidateLabels,
   };
   const response = await chrome.runtime.sendMessage(message);
@@ -174,7 +174,7 @@ async function filterToxicText(node = document.body, threadshold = 0.8) {
     // );
 
     const classification = await classifyText(sentence);
-    // console.log(`Classification result:`, classification);
+    console.log(`Classification result:`, classification);
 
     if (classification && Array.isArray(classification)) {
       const hasHighScore = classification.some(
@@ -215,46 +215,64 @@ async function filterToxicText(node = document.body, threadshold = 0.8) {
   return sentences;
 }
 
+/**
+ *
+ * @param {Node} node
+ * @param {*} threadshold
+ */
 async function blurNSFWImages(node, threadshold = 0.8) {
   const images = node.querySelectorAll("img");
-  for (const image of images) {
-    const src = image.src;
 
+  for (let i = 0; i < images.length; i++) {
+    const image = images[i];
     // Skip tiny images that are likely icons/decorative
     if (image.width < 50 || image.height < 50) {
       continue;
     }
-
-    // Skip images without valid src
-    if (!src || src.includes("placeholder")) {
-      continue;
-    }
-
-    // Check cache first
-    let classification = null;
-    if (imageClassificationCache.has(src)) {
-      console.log(
-        "Using cached classification for:",
-        src.substring(0, 50) + "..."
-      );
-      classification = imageClassificationCache.get(src);
-    } else {
-      classification = await classifyImage(src);
-    }
-
+    console.log("added image", image);
+    // image.style.filter = "blur(10px)";
+    const classification = await classifyImage(image.src);
+    console.log("Classification result", image, classification);
     if (classification && Array.isArray(classification)) {
-      imageClassificationCache.set(src, classification);
-      const hasHighScore = classification.find(
-        ({ label, score }) =>
-          (label === "adult content" ||
-            label === "inappropriate" ||
-            label === "unsafe") &&
-          score >= threadshold
+      const hasHighScore = classification[0].find(
+        (result) => result.label === "nsfw" && result.score > threadshold
       );
       if (hasHighScore) {
         image.style.filter = "blur(10px)";
       }
     }
+    // const src = image.src;
+
+    // // Skip images without valid src
+    // if (!src || src.includes("placeholder")) {
+    //   continue;
+    // }
+
+    // // Check cache first
+    // let classification = null;
+    // if (imageClassificationCache.has(src)) {
+    //   console.log(
+    //     "Using cached classification for:",
+    //     src.substring(0, 50) + "..."
+    //   );
+    //   classification = imageClassificationCache.get(src);
+    // } else {
+    //   classification = await classifyImage(src);
+    // }
+
+    // if (classification && Array.isArray(classification)) {
+    //   imageClassificationCache.set(src, classification);
+    //   const hasHighScore = classification.find(
+    //     ({ label, score }) =>
+    //       (label === "adult content" ||
+    //         label === "inappropriate" ||
+    //         label === "unsafe") &&
+    //       score >= threadshold
+    //   );
+    //   if (hasHighScore) {
+    //     image.style.filter = "blur(10px)";
+    //   }
+    // }
   }
 }
 
@@ -276,6 +294,9 @@ async function init() {
 
   if (textFilterEnabled) {
     filterToxicText(document.body, textFilterThreadshold);
+  }
+  if (imageFilterEnabled) {
+    blurNSFWImages(document.body, imageFilterThreadshold);
   }
 
   const observer = new MutationObserver((mutations) => {

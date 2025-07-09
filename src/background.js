@@ -110,8 +110,8 @@ const classify = async (text, options = {}) => {
 
 // Enhanced image classification with singleton pattern
 class ImageClassificationPipeline {
-  static task = "zero-shot-image-classification";
-  static model = "Xenova/clip-vit-base-patch32";
+  static task = "image-classification";
+  static model = "AdamCodd/vit-base-nsfw-detector";
 
   static async getInstance(progress_callback = null) {
     return (this.fn ??= async (...args) => {
@@ -134,27 +134,26 @@ class ImageClassificationPipeline {
   }
 }
 
-const classifyImage = async (
-  imageUrl,
+const classifyImages = async (
+  imageUrls,
   candidateLabels = ["safe", "unsafe", "inappropriate", "adult content"]
 ) => {
   try {
     const classifier = await ImageClassificationPipeline.getInstance(
       (progressData) => {
-        // console.log("Image classification progress:", progressData);
+        console.log("Loading image classification model:", progressData);
       }
     );
-    const result = await classifier(imageUrl, candidateLabels);
+    const result = await classifier(imageUrls);
 
     console.log("Image classification result:", {
-      imageUrl: imageUrl,
-      candidateLabels: candidateLabels,
+      imageUrls: imageUrls,
       result: result,
     });
 
     return result;
   } catch (error) {
-    console.error("Image classification failed:", imageUrl);
+    console.error("Image classification failed:", imageUrls);
     console.error(error);
     throw new Error(`Image classification failed: ${error.message}`);
   }
@@ -205,8 +204,8 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 //
 // Listen for messages from the UI, process it, and send the result back.
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log("onMessage", message);
   if (message.action === ACTION_CLASSIFY_TEXT) {
-    console.log("onMessage", message);
     classify(message.text).then((result) => sendResponse(result));
     return true;
   }
@@ -229,9 +228,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.action === ACTION_CLASSIFY_IMAGE) {
-    classifyImage(message.imageUrl, message.candidateLabels).then((result) =>
-      sendResponse(result)
-    );
+    classifyImages(message.imageUrls, message.candidateLabels)
+      .then((result) => sendResponse(result))
+      .catch((error) => {
+        console.error("Image classification failed:", error);
+        // return sendResponse({ error: error.message });
+      });
 
     return true;
   }
